@@ -1,0 +1,41 @@
+name: DotMe Part3 - build APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install apt deps (zip, unzip, gradle fallback)
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y zip unzip gradle
+
+      - name: Try Gradle wrapper or fallback to system gradle
+        run: |
+          set -euo pipefail
+          if [ -x "./gradlew" ]; then
+            echo "Using Gradle wrapper"
+            ./gradlew assembleDebug --no-daemon
+          else
+            echo "Gradle wrapper not found, using system gradle"
+            gradle assembleDebug --no-daemon
+          fi
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotme-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
