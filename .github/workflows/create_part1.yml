@@ -1,0 +1,30 @@
+name: DotMe Part1
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create base folders
+        run: |
+          mkdir -p app/src/main/java/com/dotme/app
+          mkdir -p app/src/main/res/layout
+          mkdir -p app/src/main/assets
+
+          echo "DotMe Project Base Structure" > README.md
+
+      - name: Commit files
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add .
+          git commit -m "Part1: Base folders created" || echo "No changes"
+          git push
